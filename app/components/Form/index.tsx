@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "../Button";
 import { useForm } from "react-hook-form";
 
 export const Form = () => {
+  const [keyPair, setKeyPair] = useState<CryptoKeyPair | null>(null);
   const { handleSubmit } = useForm();
 
   crypto.subtle
@@ -27,8 +29,12 @@ export const Form = () => {
             String.fromCharCode(...new Uint8Array(exportedKey))
           );
           console.log("Base64 Public Key:", base64PublicKey);
+          setKeyPair(keyPair);
           // ここでBase64エンコードされた公開鍵をサーバーに送信することができます
-          // 例: fetch("/api/sendData", { method: "POST", body: JSON.stringify({ publicKey: base64PublicKey }) });
+          //   fetch("/api/sendData", {
+          //     method: "POST",
+          //     body: JSON.stringify({ publicKey: base64PublicKey }),
+          //   });
         })
         .catch((error) => {
           console.error("Error exporting public key:", error);
@@ -38,8 +44,11 @@ export const Form = () => {
       console.error("Error generating key pair:", error);
     });
 
-  const onSubmit = (data: Record<string, string | CryptoKey>) => {
-    console.log(data);
+  const onSubmit = () => {
+    fetch("/api/sendData", {
+      method: "POST",
+      body: JSON.stringify({ publicKey: keyPair }),
+    });
   };
 
   return (
