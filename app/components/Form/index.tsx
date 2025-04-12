@@ -1,54 +1,56 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../Button";
 import { useForm } from "react-hook-form";
 
 export const Form = () => {
-  const [keyPair, setKeyPair] = useState<CryptoKeyPair | null>(null);
+  const [keyPair, setKeyPair] = useState<string | null>(null);
   const { handleSubmit } = useForm();
 
-  crypto.subtle
-    .generateKey(
-      {
-        name: "ECDSA",
-        namedCurve: "P-256",
-      },
-      true,
-      ["sign", "verify"]
-    )
-    .then((keyPair) => {
-      console.log("keyPair", keyPair);
-      // 公開鍵を取得
-      const publicKey = keyPair.publicKey;
-      // 公開鍵をBase64エンコード
-      crypto.subtle
-        .exportKey("spki", publicKey)
-        .then((exportedKey) => {
-          const base64PublicKey = btoa(
-            String.fromCharCode(...new Uint8Array(exportedKey))
-          );
-          console.log("Base64 Public Key:", base64PublicKey);
-          setKeyPair(keyPair);
-          // ここでBase64エンコードされた公開鍵をサーバーに送信することができます
-          //   fetch("/api/sendData", {
-          //     method: "POST",
-          //     body: JSON.stringify({ publicKey: base64PublicKey }),
-          //   });
-        })
-        .catch((error) => {
-          console.error("Error exporting public key:", error);
-        });
-    })
-    .catch((error) => {
-      console.error("Error generating key pair:", error);
-    });
+  useEffect(() => {
+    crypto.subtle
+      .generateKey(
+        {
+          name: "ECDSA",
+          namedCurve: "P-256",
+        },
+        true,
+        ["sign", "verify"]
+      )
+      .then((keyPair) => {
+        console.log("keyPair", keyPair);
+        // 公開鍵を取得
+        const publicKey = keyPair.publicKey;
+        // 公開鍵をBase64エンコード
+        crypto.subtle
+          .exportKey("spki", publicKey)
+          .then((exportedKey) => {
+            const base64PublicKey = btoa(
+              String.fromCharCode(...new Uint8Array(exportedKey))
+            );
+            console.log("Base64 Public Key:", base64PublicKey);
+            console.log("Public Key:", publicKey);
+            setKeyPair(base64PublicKey);
+          })
+          .catch((error) => {
+            console.error("Error exporting public key:", error);
+          });
+      })
+      .catch((error) => {
+        console.error("Error generating key pair:", error);
+      });
+  }, []);
 
-  const onSubmit = () => {
-    fetch("/api/sendData", {
+  const onSubmit = async () => {
+    const result = await fetch("/api/send", {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ publicKey: keyPair }),
     });
+    console.log("result", result);
   };
 
   return (
