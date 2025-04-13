@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "../Button";
+import { Input } from "../Input";
 import { useForm } from "react-hook-form";
 
 export const Form = () => {
@@ -55,6 +56,7 @@ export const Form = () => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <Input label="Attached File" type="file" />
       <Button label="Submit" type="submit" />
     </form>
   );
