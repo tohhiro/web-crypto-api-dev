@@ -3,21 +3,27 @@
 import { useState, useEffect } from "react";
 import { Button } from "../Button";
 import { Input } from "../Input";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
+
+type Props = {
+  file: FileList;
+};
 
 export const Form = () => {
   const [keyPair, setKeyPair] = useState<string | null>(null);
-  const { handleSubmit } = useForm();
+  const { handleSubmit, control } = useForm<Props>();
 
   useEffect(() => {
     crypto.subtle
       .generateKey(
         {
-          name: "ECDSA",
-          namedCurve: "P-256",
+          name: "RSA-OAEP",
+          modulusLength: 2048,
+          publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
+          hash: "SHA-256",
         },
         true,
-        ["sign", "verify"]
+        ["encrypt", "decrypt"]
       )
       .then((keyPair) => {
         console.log("keyPair", keyPair);
@@ -43,20 +49,47 @@ export const Form = () => {
       });
   }, []);
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: Props) => {
+    const file = data.file[0]; // FileList なので 0 番目を使う
+    if (!file) {
+      console.warn("ファイルが添付されていません");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+    if (keyPair) {
+      formData.append("publicKey", keyPair);
+    }
+
     const result = await fetch("/api/send", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ publicKey: keyPair }),
+      body: formData,
     });
+
     console.log("result", result);
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-      <Input label="Attached File" type="file" />
+      <Controller
+        name="file"
+        control={control}
+        rules={{
+          required: true,
+        }}
+        render={({ field }) => (
+          <Input
+            label="Attached File"
+            type="file"
+            accept=".csv"
+            onChange={(e) => field.onChange(e.target.files)}
+            onBlur={field.onBlur}
+            name={field.name}
+            ref={field.ref}
+          />
+        )}
+      />
       <Button label="Submit" type="submit" />
     </form>
   );
