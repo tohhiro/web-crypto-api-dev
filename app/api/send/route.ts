@@ -14,16 +14,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // ファイルをバッファに変換
-    const arrayBuffer = await file.arrayBuffer();
-    const csvBuffer = new Uint8Array(arrayBuffer);
+    // ファイル読み込み
+    const csvBuffer = new Uint8Array(await file.arrayBuffer());
 
-    // 公開鍵をBase64デコード → ArrayBuffer
-    const publicKeyBuffer = Uint8Array.from(atob(publicKeyBase64), (c) =>
-      c.charCodeAt(0)
-    ).buffer;
+    // 公開鍵のBase64 → ArrayBuffer
+    const publicKeyBuffer = Buffer.from(publicKeyBase64, "base64");
 
-    // 公開鍵をimport（RSA-OAEP）
+    // 公開鍵をインポート
     const publicKey = await crypto.subtle.importKey(
       "spki",
       publicKeyBuffer,
@@ -31,27 +28,52 @@ export async function POST(request: NextRequest) {
         name: "RSA-OAEP",
         hash: "SHA-256",
       },
-      false,
+      true,
       ["encrypt"]
     );
 
-    // CSVの暗号化
-    const encryptedBuffer = await crypto.subtle.encrypt(
+    // 対称鍵（AES）生成
+    const symmetricKey = await crypto.subtle.generateKey(
       {
-        name: "RSA-OAEP",
+        name: "AES-GCM",
+        length: 256,
       },
-      publicKey,
+      true,
+      ["encrypt", "decrypt"]
+    );
+
+    // 初期化ベクトル（IV）生成
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+
+    // 対称鍵でCSVを暗号化
+    const encryptedCsvBuffer = await crypto.subtle.encrypt(
+      {
+        name: "AES-GCM",
+        iv,
+      },
+      symmetricKey,
       csvBuffer
     );
 
-    const encryptedCsvBase64 = Buffer.from(encryptedBuffer).toString("base64");
+    // 対称鍵をエクスポート（raw）
+    const rawSymmetricKey = await crypto.subtle.exportKey("raw", symmetricKey);
 
+    // 対称鍵を公開鍵で暗号化
+    const encryptedSymmetricKeyBuffer = await crypto.subtle.encrypt(
+      { name: "RSA-OAEP" },
+      publicKey,
+      rawSymmetricKey
+    );
+
+    // すべてBase64で返す
     return NextResponse.json({
-      encryptedCsv: encryptedCsvBase64,
-      message: "Encrypted successfully",
+      encryptedCsv: Buffer.from(encryptedCsvBuffer).toString("base64"),
+      encryptedKey: Buffer.from(encryptedSymmetricKeyBuffer).toString("base64"),
+      iv: Buffer.from(iv).toString("base64"),
+      message: "Encryption complete",
     });
   } catch (error) {
-    console.error("Error handling form data:", error);
+    console.error("Error:", error);
     return NextResponse.json({ message: "Encryption failed" }, { status: 500 });
   }
 }
