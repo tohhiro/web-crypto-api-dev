@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "../Button";
 import { Input } from "../Input";
 import { Controller, useForm } from "react-hook-form";
+import { useGenerateKey } from "./hooks/useGenerateKey";
 
 type Props = {
   file: FileList;
@@ -19,27 +20,8 @@ export const Form = () => {
 
   const { handleSubmit, control } = useForm<Props>();
 
-  useEffect(() => {
-    // RSAキーペア生成（秘密鍵と公開鍵）
-    crypto.subtle
-      .generateKey(
-        {
-          name: "RSA-OAEP",
-          modulusLength: 2048,
-          publicExponent: new Uint8Array([0x01, 0x00, 0x01]),
-          hash: "SHA-256",
-        },
-        true,
-        ["encrypt", "decrypt"]
-      )
-      .then((keyPair) => {
-        console.log("keyPair", keyPair);
-        setKeyPair(keyPair);
-      })
-      .catch((error) => {
-        console.error("Error generating key pair:", error);
-      });
-  }, []);
+  // RSAキーペア生成（秘密鍵と公開鍵）
+  useGenerateKey({ setKey: setKeyPair });
 
   const onSubmit = async (data: Props) => {
     const file = data.file[0]; // FileList なので 0 番目を使う
