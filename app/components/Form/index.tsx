@@ -5,6 +5,7 @@ import { Button } from "../Button";
 import { Input } from "../Input";
 import { Controller, useForm } from "react-hook-form";
 import { useGenerateKey } from "./hooks/useGenerateKey";
+import { useSendPublicKeyAndCsv } from "./hooks/useSendPublicKeyAndCsv";
 
 type Props = {
   file: FileList;
@@ -23,30 +24,14 @@ export const Form = () => {
   // RSAキーペア生成（秘密鍵と公開鍵）
   useGenerateKey({ setKey: setKeyPair });
 
+  // 公開鍵とCSVを送信するhooks
+  const { getExportedPublicKey } = useSendPublicKeyAndCsv();
+
   const onSubmit = async (data: Props) => {
-    const file = data.file[0]; // FileList なので 0 番目を使う
-    if (!file || !keyPair) {
-      console.warn("ファイルまたは鍵がありません");
-      return;
-    }
+    // CSVファイルと公開鍵をAPIへ送信
+    const result = await getExportedPublicKey({ data, keyPair });
 
-    const formData = new FormData();
-    formData.append("file", file);
-    const exportedPublicKey = await crypto.subtle.exportKey(
-      "spki",
-      keyPair.publicKey
-    );
-    const base64PublicKey = btoa(
-      String.fromCharCode(...new Uint8Array(exportedPublicKey))
-    );
-    formData.append("publicKey", base64PublicKey);
-
-    const result = await fetch("/api/send", {
-      method: "POST",
-      body: formData,
-    });
-
-    const dataResponse = await result.json();
+    const dataResponse = await result?.json();
     if (
       dataResponse.encryptedCsv &&
       dataResponse.encryptedKey &&
@@ -58,7 +43,6 @@ export const Form = () => {
         iv: dataResponse.iv,
       });
     }
-    console.log("Encrypted Data:", dataResponse);
   };
 
   // 復号処理
