@@ -7,6 +7,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useGenerateKey } from "./hooks/useGenerateKey";
 import { useSendPublicKeyAndCsv } from "./hooks/useSendPublicKeyAndCsv";
 import { useDecrypt } from "./hooks/useDecrypt";
+import { useEncrypt } from "./hooks/useEncrypt";
 
 type Props = {
   file: FileList;
@@ -30,8 +31,11 @@ export const Form = () => {
   // 公開鍵とCSVを送信するhooks
   const { getExportedPublicKey } = useSendPublicKeyAndCsv();
 
-  // 復号処理のhooks
+  // 復号処理をした状態のCSVのダウンロード
   const { decrypt } = useDecrypt();
+
+  // 暗号化されたCSVのダウンロード
+  const { encrypt } = useEncrypt();
 
   const onSubmit = async (data: Props) => {
     // CSVファイルと公開鍵をAPIへ送信
@@ -59,28 +63,11 @@ export const Form = () => {
     });
   };
 
-  // 暗号化されたデータのダウンロード
+  // 暗号化されたCSVのダウンロード
   const handleDownloadEncrypted = () => {
-    if (!encryptedData) return;
-    // Base64データをBlobに変換
-    const encryptedCsvBlob = new Blob(
-      [
-        new Uint8Array(
-          atob(encryptedData.encryptedCsv)
-            .split("")
-            .map((c) => c.charCodeAt(0))
-        ),
-      ],
-      { type: "application/octet-stream" }
-    );
-    const encryptedCsvUrl = URL.createObjectURL(encryptedCsvBlob);
-    // ダウンロードのリンクを生成してクリック
-    const encryptedCsvLink = document.createElement("a");
-    encryptedCsvLink.href = encryptedCsvUrl;
-    encryptedCsvLink.download = "encrypted.csv";
-    encryptedCsvLink.click();
-    // URLを解放
-    URL.revokeObjectURL(encryptedCsvUrl);
+    encrypt({
+      encryptedData,
+    });
   };
 
   return (
