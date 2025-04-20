@@ -4,10 +4,12 @@ import { useState } from "react";
 import { Button } from "../Button";
 import { Input } from "../Input";
 import { Controller, useForm } from "react-hook-form";
-import { useGenerateKey } from "./hooks/useGenerateKey";
-import { useSendPublicKeyAndCsv } from "./hooks/useSendPublicKeyAndCsv";
-import { useDecrypt } from "./hooks/useDecrypt";
-import { useEncrypt } from "./hooks/useEncrypt";
+import {
+  useGenerateKey,
+  useSendPublicKeyAndCsv,
+  useDecrypt,
+  useEncrypt,
+} from "./hooks";
 
 type Props = {
   file: FileList;
