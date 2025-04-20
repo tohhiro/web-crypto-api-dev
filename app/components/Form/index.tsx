@@ -6,18 +6,21 @@ import { Input } from "../Input";
 import { Controller, useForm } from "react-hook-form";
 import { useGenerateKey } from "./hooks/useGenerateKey";
 import { useSendPublicKeyAndCsv } from "./hooks/useSendPublicKeyAndCsv";
+import { useDecrypt } from "./hooks/useDecrypt";
 
 type Props = {
   file: FileList;
 };
 
+export type KeyAndCsv = {
+  encryptedCsv: string;
+  encryptedKey: string;
+  iv: string;
+};
+
 export const Form = () => {
   const [keyPair, setKeyPair] = useState<CryptoKeyPair | null>(null);
-  const [encryptedData, setEncryptedData] = useState<{
-    encryptedCsv: string;
-    encryptedKey: string;
-    iv: string;
-  } | null>(null);
+  const [encryptedData, setEncryptedData] = useState<KeyAndCsv | null>(null);
 
   const { handleSubmit, control } = useForm<Props>();
 
@@ -26,6 +29,9 @@ export const Form = () => {
 
   // 公開鍵とCSVを送信するhooks
   const { getExportedPublicKey } = useSendPublicKeyAndCsv();
+
+  // 復号処理のhooks
+  const { decrypt } = useDecrypt();
 
   const onSubmit = async (data: Props) => {
     // CSVファイルと公開鍵をAPIへ送信
@@ -45,72 +51,17 @@ export const Form = () => {
     }
   };
 
-  // 復号処理
-  const handleDecrypt = async () => {
-    if (!encryptedData || !keyPair) return;
-
-    // Base64からBufferに変換
-    const encryptedCsvBuffer = Uint8Array.from(
-      atob(encryptedData.encryptedCsv),
-      (c) => c.charCodeAt(0)
-    );
-    const encryptedKeyBuffer = Uint8Array.from(
-      atob(encryptedData.encryptedKey),
-      (c) => c.charCodeAt(0)
-    );
-    const ivBuffer = Uint8Array.from(atob(encryptedData.iv), (c) =>
-      c.charCodeAt(0)
-    );
-
-    // 秘密鍵を使って対称鍵（AES）を復号
-    const decryptedSymmetricKeyBuffer = await crypto.subtle.decrypt(
-      {
-        name: "RSA-OAEP",
-      },
-      keyPair.privateKey,
-      encryptedKeyBuffer
-    );
-
-    // 対称鍵をインポート
-    const symmetricKey = await crypto.subtle.importKey(
-      "raw",
-      decryptedSymmetricKeyBuffer,
-      { name: "AES-GCM" },
-      false,
-      ["decrypt"]
-    );
-
-    // 対称鍵でCSVを復号
-    const decryptedCsvBuffer = await crypto.subtle.decrypt(
-      {
-        name: "AES-GCM",
-        iv: ivBuffer,
-      },
-      symmetricKey,
-      encryptedCsvBuffer
-    );
-
-    // 復号後のデータをCSVに変換
-    const decodedCsv = new TextDecoder().decode(decryptedCsvBuffer);
-
-    // 復号したデータをダウンロード
-    const decryptedBlob = new Blob([decodedCsv], { type: "text/csv" });
-    const decryptedUrl = URL.createObjectURL(decryptedBlob);
-
-    // ダウンロードのリンクを生成してクリック
-    const decryptedLink = document.createElement("a");
-    decryptedLink.href = decryptedUrl;
-    decryptedLink.download = "decrypted.csv";
-    decryptedLink.click();
-
-    // URLを解放
-    URL.revokeObjectURL(decryptedUrl);
+  // 復号処理したCSVのダウンロード
+  const handleDownloadDecrypted = async () => {
+    await decrypt({
+      encryptedData,
+      keyPair,
+    });
   };
 
   // 暗号化されたデータのダウンロード
   const handleDownloadEncrypted = () => {
     if (!encryptedData) return;
-
     // Base64データをBlobに変換
     const encryptedCsvBlob = new Blob(
       [
@@ -123,13 +74,11 @@ export const Form = () => {
       { type: "application/octet-stream" }
     );
     const encryptedCsvUrl = URL.createObjectURL(encryptedCsvBlob);
-
     // ダウンロードのリンクを生成してクリック
     const encryptedCsvLink = document.createElement("a");
     encryptedCsvLink.href = encryptedCsvUrl;
     encryptedCsvLink.download = "encrypted.csv";
     encryptedCsvLink.click();
-
     // URLを解放
     URL.revokeObjectURL(encryptedCsvUrl);
   };
@@ -161,7 +110,10 @@ export const Form = () => {
             label="Download Encrypted CSV"
             onClick={handleDownloadEncrypted}
           />
-          <Button label="Download Decrypted CSV" onClick={handleDecrypt} />
+          <Button
+            label="Download Decrypted CSV"
+            onClick={handleDownloadDecrypted}
+          />
         </>
       )}
     </form>
