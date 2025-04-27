@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { encryptCsvWithPublicKey } from "./encryptCsv";
+import { encryptCsvWithPublicKey } from "./helpers/encryptCsvWithPublicKey";
 
 export async function POST(request: NextRequest) {
   try {

@@ -25,7 +25,11 @@ export const Form = () => {
   const [keyPair, setKeyPair] = useState<CryptoKeyPair | null>(null);
   const [encryptedData, setEncryptedData] = useState<KeyAndCsv | null>(null);
 
-  const { handleSubmit, control } = useForm<Props>();
+  const {
+    handleSubmit,
+    control,
+    formState: { isSubmitting },
+  } = useForm<Props>();
 
   // RSAキーペア生成（秘密鍵と公開鍵）
   useGenerateKey({ setKey: setKeyPair });
@@ -92,7 +96,7 @@ export const Form = () => {
           />
         )}
       />
-      <Button label="Submit" type="submit" />
+      <Button label="Submit" type="submit" disabled={isSubmitting} />
       {encryptedData && (
         <>
           <Button
