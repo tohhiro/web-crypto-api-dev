@@ -1,6 +1,6 @@
 import { FC } from "react";
 
-type Props = {
+export type Props = {
   label: string;
   type?: "button" | "submit" | "reset";
 } & React.HTMLProps<HTMLButtonElement>;
