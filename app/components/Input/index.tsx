@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 
-type Props = {
+export type Props = {
   label: string;
   type?: "text" | "number" | "file";
 };
