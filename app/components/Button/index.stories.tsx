@@ -23,6 +23,14 @@ export const Default: Story = {
   args: mockBaseData,
 };
 
+export const WithLongLabel: Story = {
+  args: {
+    ...mockBaseData,
+    label:
+      "ButtonラベルButtonラベルButtonラベルButtonラベルButtonラベルButtonラベルButtonラベルButtonラベルButtonラベル",
+  },
+};
+
 export const Disabled: Story = {
   args: { ...mockBaseData, disabled: true },
 };
