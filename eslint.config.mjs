@@ -14,7 +14,16 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
-  ...storybook.configs["flat/recommended"]
+  ...storybook.configs["flat/recommended"],
+  {
+    files: ["**/*.test.ts", "**/*.test.tsx"],
+    plugins: {
+      "vitest-globals": vitestGlobals,
+    },
+    languageOptions: {
+      globals: vitestGlobals.environments.vitest.globals,
+    },
+  },
 ];
 
 export default eslintConfig;

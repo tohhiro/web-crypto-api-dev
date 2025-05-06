@@ -1,4 +1,4 @@
-import { forwardRef } from "react";
+import { forwardRef, useId } from "react";
 
 export type Props = {
   label: string;
@@ -11,10 +11,15 @@ export const Input = forwardRef<
 >(({ label, type = "text", ...field }, ref) => {
   const { value, ...rest } = field;
 
+  const id = useId();
+
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-gray-700 font-bold">{label}</label>
+      <label htmlFor={id} className="text-gray-700 font-bold">
+        {label}
+      </label>
       <input
+        id={id}
         ref={ref}
         type={type}
         accept={type === "file" ? ".csv" : undefined}
