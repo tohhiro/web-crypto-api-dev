@@ -16,7 +16,6 @@ type Story = StoryObj<typeof Button>;
 const mockBaseData: Props = {
   label: "Buttonラベル",
   type: "button",
-  onClick: () => {},
 };
 
 export const Default: Story = {
