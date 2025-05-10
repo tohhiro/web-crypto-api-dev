@@ -10,6 +10,8 @@ import {
   useDecrypt,
   useEncrypt,
 } from "./hooks";
+import { validationSchema } from "./helpers/validationSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type Props = {
   file: FileList;
@@ -28,8 +30,10 @@ export const Form = () => {
   const {
     handleSubmit,
     control,
-    formState: { isSubmitting },
-  } = useForm<Props>();
+    formState: { isSubmitting, errors },
+  } = useForm<Props>({
+    resolver: zodResolver(validationSchema),
+  });
 
   // RSAキーペア生成（秘密鍵と公開鍵）
   useGenerateKey({ setKey: setKeyPair });
@@ -85,15 +89,20 @@ export const Form = () => {
           required: true,
         }}
         render={({ field }) => (
-          <Input
-            label="Attached File"
-            type="file"
-            accept=".csv"
-            onChange={(e) => field.onChange(e.target.files)}
-            onBlur={field.onBlur}
-            name={field.name}
-            ref={field.ref}
-          />
+          <>
+            <Input
+              label="Attached File"
+              type="file"
+              accept=".csv"
+              onChange={(e) => field.onChange(e.target.files)}
+              onBlur={field.onBlur}
+              name={field.name}
+              ref={field.ref}
+            />
+            {errors.file && (
+              <span className="text-red-500">{errors.file?.message}</span>
+            )}
+          </>
         )}
       />
       <Button label="Submit" type="submit" disabled={isSubmitting} />
