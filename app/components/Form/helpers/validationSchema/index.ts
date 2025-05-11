@@ -1,30 +1,3 @@
-// import { z } from "zod";
-
-// export const validationSchema = z.object({
-//   file: z
-//     .custom<FileList>()
-//     .refine((val) => val.length > 0, "ファイルは必須です")
-//     .refine((val) => {
-//       const file = val.item(0);
-//       return file?.type === "text/csv" || file?.name.endsWith(".csv");
-//     }, "CSVファイルのみ許可されています"),
-// });
-// helpers/validationSchema.ts
-// import { z } from "zod";
-
-// export const validationSchema = z.object({
-//   file: z
-//     .custom<FileList>((val) => val instanceof FileList && val.length > 0, {
-//       message: "CSVファイルを1つ選択してください",
-//     })
-//     .refine(
-//       (fileList) => fileList.item(0)?.type === "text/csv",
-//       "CSVファイルのみアップロードできます"
-//     ),
-// });
-
-// export type FormSchema = z.infer<typeof validationSchema>;
-
 import { z } from "zod";
 
 export const validationSchema = z.object({
