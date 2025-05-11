@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect } from "vitest";
 import { validationSchema } from ".";
 
 const createFileListMock = (files: File[]): FileList => {
@@ -6,14 +6,14 @@ const createFileListMock = (files: File[]): FileList => {
     0: files[0],
     length: files.length,
     item(index: number) {
-      return (this as unknown as FileList)[index] ?? null;
+      return this[index] ?? null;
     },
-    [Symbol.iterator]: function* (this: FileList) {
+    [Symbol.iterator]: function* (this: FileList): Generator<File> {
       for (let i = 0; i < this.length; i++) {
         yield this[i];
       }
     },
-  } as unknown as FileList;
+  };
 };
 
 describe("validationSchema", () => {
