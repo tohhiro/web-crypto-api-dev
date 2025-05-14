@@ -8,7 +8,7 @@ const createFileListMock = (files: File[]): FileList => {
     item(index: number) {
       return this[index] ?? null;
     },
-    [Symbol.iterator]: function* (this: FileList): Generator<File> {
+    *[Symbol.iterator](this: FileList): Generator<File> {
       for (let i = 0; i < this.length; i++) {
         yield this[i];
       }
