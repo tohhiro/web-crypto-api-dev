@@ -4,15 +4,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Form } from ".";
 import type { KeyAndCsv } from "@/app/components/Form";
 
-// モック関数の定義
-const mockGenerateKey = vi.fn();
 const mockGetExportedPublicKey = vi.fn();
 const mockEncrypt = vi.fn();
 const mockDecrypt = vi.fn();
 
-// カスタムフックのモック
 vi.mock("./hooks", () => ({
-  useGenerateKey: () => ({ setKey: mockGenerateKey }),
+  useGenerateKey: () => ({ setKey: vi.fn() }),
   useSendPublicKeyAndCsv: () => ({
     getExportedPublicKey: mockGetExportedPublicKey,
   }),
@@ -20,7 +17,13 @@ vi.mock("./hooks", () => ({
   useDecrypt: () => ({ decrypt: mockDecrypt }),
 }));
 
-describe("Form Component", () => {
+const mockResponseData: KeyAndCsv = {
+  encryptedCsv: "mockEncryptedCsv",
+  encryptedKey: "mockEncryptedKey",
+  iv: "mockIv",
+};
+
+describe("Form", () => {
   const user = userEvent.setup();
 
   beforeEach(() => {
@@ -34,16 +37,8 @@ describe("Form Component", () => {
   });
 
   test("PDFファイルをアップロードするとAPI通信されず暗号・復号のボタンが表示されない", async () => {
-    // モックされたAPIレスポンス
-    const mockResponseData: KeyAndCsv = {
-      encryptedCsv: "mockEncryptedCsv",
-      encryptedKey: "mockEncryptedKey",
-      iv: "mockIv",
-    };
-
-    // getExportedPublicKeyのモック実装
     mockGetExportedPublicKey.mockResolvedValueOnce({
-      json: async () => mockResponseData,
+      json: () => mockResponseData,
     });
 
     render(<Form />);
@@ -51,63 +46,51 @@ describe("Form Component", () => {
     const file = new File(["id,name\n1,Alice\n2,Bob"], "test.pdf", {
       type: "text/pdf",
     });
-    const fileInput = screen.getByLabelText(
-      /Attached File/i
-    ) as HTMLInputElement;
+    const fileInput = screen.getByLabelText("Attached File");
     await userEvent.upload(fileInput, file);
 
-    const submitButton = screen.getByRole("button", { name: /Submit/i });
+    const submitButton = screen.getByRole("button", { name: "Submit" });
     await userEvent.click(submitButton);
 
-    // API呼び出しの確認
     await waitFor(() => {
       expect(mockGetExportedPublicKey).not.toHaveBeenCalled();
     });
 
     expect(
       screen.queryByRole("button", {
-        name: /Download Encrypted CSV/i,
+        name: "Download Encrypted CSV",
       })
     ).not.toBeInTheDocument();
+
     expect(
       screen.queryByRole("button", {
-        name: /Download Decrypted CSV/i,
+        name: "Download Decrypted CSV",
       })
     ).not.toBeInTheDocument();
   });
 
   test("CSVファイルをアップロードすると暗号・復号のボタンが表示、押下するとコールバックが呼び出される", async () => {
-    // モックされたAPIレスポンス
-    const mockResponseData: KeyAndCsv = {
-      encryptedCsv: "mockEncryptedCsv",
-      encryptedKey: "mockEncryptedKey",
-      iv: "mockIv",
-    };
-
-    // getExportedPublicKeyのモック実装
     mockGetExportedPublicKey.mockResolvedValueOnce({
-      json: async () => mockResponseData,
+      json: () => mockResponseData,
     });
 
     render(<Form />);
 
-    // ファイルのアップロード
     const file = new File(["id,name\n1,Alice\n2,Bob"], "test.csv", {
       type: "text/csv",
     });
-    const fileInput = screen.getByLabelText(
-      /Attached File/i
-    ) as HTMLInputElement;
+
+    const fileInput = screen.getByLabelText("Attached File");
     await user.upload(fileInput, file);
 
-    const submitButton = screen.getByRole("button", { name: /Submit/i });
+    const submitButton = screen.getByRole("button", { name: "Submit" });
     await user.click(submitButton);
 
     const downloadEncryptedButton = await screen.findByRole("button", {
-      name: /Download Encrypted CSV/i,
+      name: "Download Encrypted CSV",
     });
     const downloadDecryptedButton = await screen.findByRole("button", {
-      name: /Download Decrypted CSV/i,
+      name: "Download Decrypted CSV",
     });
 
     await user.click(downloadEncryptedButton);
