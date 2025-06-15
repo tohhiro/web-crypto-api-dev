@@ -1,14 +1,14 @@
 /// <reference types="vitest" />
 // @vitest-environment node
 
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, expect, beforeAll } from "vitest";
 import { encryptCsvWithPublicKey } from "./encryptCsvWithPublicKey";
 
 globalThis.crypto ??= require("crypto").webcrypto;
 
-const mockCsvFile = (content: string): File => {
-  return new File([content], "test.csv", { type: "text/csv" });
-};
+// const mockCsvFile = (content: string): File => {
+//   return new File([content], "test.csv", { type: "text/csv" });
+// };
 
 // RSA 2048bit 公開鍵 (spki base64形式) のダミー（正常系用）
 const validPublicKeyBase64 = "MIIBIjANBgkq...略...IDAQAB"; // ← ここに本物を入れる
@@ -55,25 +55,25 @@ describe("encryptCsvWithPublicKey", () => {
     expect(typeof result.iv).toBe("string");
   });
 
-  //   test("異常系：公開鍵が不正な形式（base64 decodeできない）", async () => {
-  //     const file = mockCsvFile("test");
-  //     const invalidKey = "これはbase64ではないキー";
+  test("異常系：公開鍵が不正な形式（base64 decodeできない）場合、エラーをスローする", async () => {
+    const file = createMockFile("name,age\nAlice,30\nBob,25");
+    const invalidKey = "not_base64_encoded_key";
 
-  //     await expect(() =>
-  //       encryptCsvWithPublicKey(file, invalidKey)
-  //     ).rejects.toThrow(/Failed to execute 'importKey'/);
-  //   });
+    await expect(() =>
+      encryptCsvWithPublicKey(file, invalidKey)
+    ).rejects.toThrow(/Invalid keyData/);
+  });
 
-  //   test("異常系：公開鍵はbase64だがRSA鍵ではない", async () => {
-  //     const file = mockCsvFile("test");
-  //     const fakeBase64 = Buffer.from("not an RSA key").toString("base64");
+  test("異常系：公開鍵はbase64だがRSA鍵ではない場合、エラーをスローする", async () => {
+    const file = createMockFile("name,age\nAlice,30\nBob,25");
+    const fakeBase64 = Buffer.from("not an RSA key").toString("base64");
 
-  //     await expect(() =>
-  //       encryptCsvWithPublicKey(file, fakeBase64)
-  //     ).rejects.toThrow(/Failed to execute 'importKey'/);
-  //   });
+    await expect(() =>
+      encryptCsvWithPublicKey(file, fakeBase64)
+    ).rejects.toThrow(/Invalid keyData/);
+  });
 
-  test("異常系：file.arrayBuffer() が壊れている File", async () => {
+  test("異常系：file.arrayBuffer() が壊れているファイルの場合、エラーをスローする", async () => {
     const brokenFile = {
       arrayBuffer: () => Promise.reject(new Error("Fake File Error")),
       name: "test.csv",
