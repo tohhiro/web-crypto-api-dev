@@ -55,32 +55,32 @@ describe("encryptCsvWithPublicKey", () => {
     expect(typeof result.iv).toBe("string");
   });
 
-  test("異常系：公開鍵が不正な形式（base64 decodeできない）場合、エラーをスローする", async () => {
+  test("異常系：公開鍵が不正な形式（base64 decodeできない）場合、エラーをスローする", () => {
     const file = createMockFile("name,age\nAlice,30\nBob,25");
     const invalidKey = "not_base64_encoded_key";
 
-    await expect(() =>
-      encryptCsvWithPublicKey(file, invalidKey)
-    ).rejects.toThrow(/Invalid keyData/);
+    expect(() => encryptCsvWithPublicKey(file, invalidKey)).rejects.toThrow(
+      /Invalid keyData/
+    );
   });
 
-  test("異常系：公開鍵はbase64だがRSA鍵ではない場合、エラーをスローする", async () => {
+  test("異常系：公開鍵はbase64だがRSA鍵ではない場合、エラーをスローする", () => {
     const file = createMockFile("name,age\nAlice,30\nBob,25");
     const fakeBase64 = Buffer.from("not an RSA key").toString("base64");
 
-    await expect(() =>
-      encryptCsvWithPublicKey(file, fakeBase64)
-    ).rejects.toThrow(/Invalid keyData/);
+    expect(() => encryptCsvWithPublicKey(file, fakeBase64)).rejects.toThrow(
+      /Invalid keyData/
+    );
   });
 
-  test("異常系：file.arrayBuffer() が壊れているファイルの場合、エラーをスローする", async () => {
+  test("異常系：file.arrayBuffer() が壊れているファイルの場合、エラーをスローする", () => {
     const brokenFile = {
       arrayBuffer: () => Promise.reject(new Error("Fake File Error")),
       name: "test.csv",
       type: "text/csv",
     } as unknown as File;
 
-    await expect(() =>
+    expect(() =>
       encryptCsvWithPublicKey(brokenFile, validPublicKeyBase64)
     ).rejects.toThrow("Fake File Error");
   });
