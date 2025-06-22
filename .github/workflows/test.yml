@@ -38,8 +38,8 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: node setup composite
+      - name: Setup Node.js with Cache
         uses: ./.github/actions/setup-node-cache
 
-      - name: Run Tests
-        run: npm test
+      - name: Run Unit Tests
+        run: npm run test
