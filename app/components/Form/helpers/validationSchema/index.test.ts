@@ -17,7 +17,7 @@ const createFileListMock = (files: File[]): FileList => {
 };
 
 describe("validationSchema", () => {
-  test("CSVであればtrue", () => {
+  test("CSVであればtrueになること", () => {
     const csvFile = new File(["id,name\n1,Alice"], "test.csv", {
       type: "text/csv",
     });
@@ -27,13 +27,13 @@ describe("validationSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  test("ファイルが存在しない場合はfalse", () => {
+  test("ファイルが存在しない場合はfalseになること", () => {
     const fileList = createFileListMock([]);
     const result = validationSchema.safeParse({ file: fileList });
     expect(result.success).toBe(false);
   });
 
-  test("CSVでない場合はfalse", () => {
+  test("CSVでない場合はfalseになること", () => {
     const txtFile = new File(["Hello"], "test.txt", {
       type: "text/plain",
     });

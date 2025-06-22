@@ -34,7 +34,7 @@ describe("useSendPublicKeyAndCsv", () => {
     vi.restoreAllMocks();
   });
 
-  test("ファイルが空の場合、「ファイルまたは鍵がありません」のconsole.warnが発生する", async () => {
+  test("ファイルが空の場合、「ファイルまたは鍵がありません」のconsole.warnが発生すること", async () => {
     const { result } = renderHook(() => useSendPublicKeyAndCsv());
 
     await result.current.getExportedPublicKey({
@@ -43,7 +43,7 @@ describe("useSendPublicKeyAndCsv", () => {
     });
     expect(console.warn).toHaveBeenCalledWith("ファイルまたは鍵がありません");
   });
-  test("鍵が空の場合、「ファイルまたは鍵がありません」のconsole.warnが発生する", async () => {
+  test("鍵が空の場合、「ファイルまたは鍵がありません」のconsole.warnが発生すること", async () => {
     const { result } = renderHook(() => useSendPublicKeyAndCsv());
 
     await result.current.getExportedPublicKey({

@@ -5,28 +5,28 @@ import userEvent from "@testing-library/user-event";
 describe("Button", () => {
   const label = "Test Label";
 
-  test("propsに渡したラベル、デフォルトはbutton属性で表示される", () => {
+  test("propsに渡したラベル、デフォルトはbutton属性で表示されること", () => {
     render(<Button label={label} />);
     const buttonElement = screen.getByRole("button", { name: label });
     expect(buttonElement).toBeInTheDocument();
     expect(buttonElement).toHaveAttribute("type", "button");
   });
 
-  test("propsに渡したラベルとsubmit属性で表示される", () => {
+  test("propsに渡したラベルとsubmit属性で表示されること", () => {
     render(<Button label={label} type="submit" />);
     const buttonElement = screen.getByRole("button", { name: label });
     expect(buttonElement).toBeInTheDocument();
     expect(buttonElement).toHaveAttribute("type", "submit");
   });
 
-  test("propsに渡したラベルとreset属性で表示される", () => {
+  test("propsに渡したラベルとreset属性で表示されること", () => {
     render(<Button label={label} type="reset" />);
     const buttonElement = screen.getByRole("button", { name: label });
     expect(buttonElement).toBeInTheDocument();
     expect(buttonElement).toHaveAttribute("type", "reset");
   });
 
-  test("ボタンが押下するとonClickが呼ばれる", async () => {
+  test("ボタンが押下するとonClickが呼ばれること", async () => {
     const user = userEvent.setup();
     const onClick = vi.fn();
     render(<Button label={label} onClick={onClick} />);

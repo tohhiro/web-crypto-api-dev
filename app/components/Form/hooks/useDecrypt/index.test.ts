@@ -57,7 +57,7 @@ describe("useDecrypt", () => {
     );
   });
 
-  test("decrypts the data and triggers download", async () => {
+  test("復号されるとダウンロードURL生成されること", async () => {
     const encryptedData: KeyAndCsv = {
       encryptedCsv: toBase64(new Uint8Array([1, 2, 3])),
       encryptedKey: toBase64(new Uint8Array([4, 5, 6])),

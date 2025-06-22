@@ -24,7 +24,7 @@ describe("useEncrypt", () => {
     ).not.toThrow();
   });
 
-  test("encryptedData がある場合、ダウンロード可能なリンクが生成される", () => {
+  test("encryptedData がある場合、ダウンロード可能なリンクが生成されること", () => {
     const { result } = renderHook(() => useEncrypt());
 
     const encryptedData: KeyAndCsv = {
