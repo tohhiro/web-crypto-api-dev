@@ -17,9 +17,11 @@ describe("useEncrypt", () => {
     URL.revokeObjectURL = originalRevokeObjectURL;
   });
 
-  it("encryptedData が null の場合、何もしない", () => {
+  it("encryptedData が null の場合、何もしない", async () => {
     const { result } = renderHook(() => useEncrypt());
-    expect(() => result.current.encrypt({ encryptedData: null })).not.toThrow();
+    await expect(() =>
+      result.current.encrypt({ encryptedData: null })
+    ).not.toThrow();
   });
 
   it("encryptedData がある場合、ダウンロード可能なリンクが生成される", () => {

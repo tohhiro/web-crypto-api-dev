@@ -1,0 +1,45 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "!.*"
+      - "app/**"
+      - ".github/**"
+      - "tests/**"
+
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "!.*"
+      - "app/**"
+      - ".github/**"
+      - "tests/**"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Tokyo
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js with Cache
+        uses: ./.github/actions/setup-node-cache
+
+      - name: Run Unit Tests
+        run: npm run test
