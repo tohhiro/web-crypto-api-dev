@@ -1,0 +1,19 @@
+name: Setup Node with Cache
+description: "Setup Node and install dependencies"
+
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version-file: ".node-version"
+    - name: Configure cache
+      id: cache
+      uses: actions/cache@v3
+      with:
+        path: node_modules
+        key: node-${{ hashFiles('package.json') }}-${{ hashFiles('.eslintrc.json') }}
+    - name: Install dependencies
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: npm install
