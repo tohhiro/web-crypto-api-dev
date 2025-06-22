@@ -17,14 +17,12 @@ describe("useEncrypt", () => {
     URL.revokeObjectURL = originalRevokeObjectURL;
   });
 
-  it("encryptedData が null の場合、何もしない", async () => {
+  test("encryptedData が null の場合、何もしない", () => {
     const { result } = renderHook(() => useEncrypt());
-    await expect(() =>
-      result.current.encrypt({ encryptedData: null })
-    ).not.toThrow();
+    expect(() => result.current.encrypt({ encryptedData: null })).not.toThrow();
   });
 
-  it("encryptedData がある場合、ダウンロード可能なリンクが生成される", () => {
+  test("encryptedData がある場合、ダウンロード可能なリンクが生成されること", () => {
     const { result } = renderHook(() => useEncrypt());
 
     const encryptedData: KeyAndCsv = {

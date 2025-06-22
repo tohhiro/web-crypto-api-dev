@@ -18,7 +18,7 @@ describe("useGenerateKey", () => {
     vi.restoreAllMocks();
   });
 
-  test("setKeyとcryptoのgenerateKeyが呼ばれる", async () => {
+  test("setKeyとcryptoのgenerateKeyが呼ばれること", async () => {
     const setKey = vi.fn();
 
     renderHook(() => useGenerateKey({ setKey }));
@@ -29,7 +29,7 @@ describe("useGenerateKey", () => {
     );
   });
 
-  test("エラーの場合、setKeyは呼ばれず、エラーメッセージが発生する", async () => {
+  test("エラーの場合、setKeyは呼ばれず、エラーメッセージが発生すること", async () => {
     const error = new Error("Failed to generate key");
     const setKey = vi.fn();
     const consoleErrorSpy = vi

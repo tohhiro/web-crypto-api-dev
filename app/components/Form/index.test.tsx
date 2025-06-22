@@ -30,13 +30,13 @@ describe("Form", () => {
     vi.clearAllMocks();
   });
 
-  test("「Attached File」と「Submit」ボタンが表示される", () => {
+  test("「Attached File」と「Submit」ボタンが表示されること", () => {
     render(<Form />);
     expect(screen.getByLabelText(/Attached File/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /Submit/i })).toBeInTheDocument();
   });
 
-  test("PDFファイルをアップロードするとAPI通信されず暗号・復号のボタンが表示されない", async () => {
+  test("PDFファイルをアップロードするとAPI通信されず暗号・復号のボタンが表示されないこと", async () => {
     mockGetExportedPublicKey.mockResolvedValueOnce({
       json: () => mockResponseData,
     });
@@ -69,7 +69,7 @@ describe("Form", () => {
     ).not.toBeInTheDocument();
   });
 
-  test("CSVファイルをアップロードすると暗号・復号のボタンが表示、押下するとコールバックが呼び出される", async () => {
+  test("CSVファイルをアップロードすると暗号・復号のボタンが表示、押下するとコールバックが呼び出されること", async () => {
     mockGetExportedPublicKey.mockResolvedValueOnce({
       json: () => mockResponseData,
     });
