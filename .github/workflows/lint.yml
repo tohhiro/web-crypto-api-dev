@@ -43,7 +43,7 @@ jobs:
 
       - name: Run Lint
         if: steps.changes.outputs.shouldRun == 'true'
-        run: npm next lint
+        run: npx next lint
 
       - name: Skip Lint (no app/ changes)
         if: steps.changes.outputs.shouldRun == 'false'
