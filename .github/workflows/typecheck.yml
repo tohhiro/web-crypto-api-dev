@@ -18,7 +18,7 @@ permissions:
   pull-requests: read
 
 jobs:
-  test:
+  typecheck:
     runs-on: ubuntu-latest
     env:
       TZ: Asia/Tokyo
