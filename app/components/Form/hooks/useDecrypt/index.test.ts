@@ -1,5 +1,4 @@
 import { renderHook, act } from "@testing-library/react";
-import { vi, describe, it, expect, beforeEach } from "vitest";
 import { useDecrypt } from ".";
 import type { KeyAndCsv } from "@/app/components/Form";
 
@@ -8,11 +7,13 @@ type MockKeyPair = {
   privateKey: CryptoKey;
 };
 
+type MockAlgorithm = typeof window.crypto.subtle.decrypt;
+
 const toBase64 = (buffer: Uint8Array) => btoa(String.fromCharCode(...buffer));
 
 describe("useDecrypt", () => {
   let mockKeyPair: MockKeyPair;
-  let decryptedText = "id,name\n1,Alice\n2,Bob";
+  const decryptedText = "id,name\n1,Alice\n2,Bob";
   const decryptedCsvBuffer = new TextEncoder().encode(decryptedText);
 
   // 元の createElement を保持
@@ -26,16 +27,14 @@ describe("useDecrypt", () => {
     };
 
     // crypto.subtle.decrypt のモック
-    vi.spyOn(crypto.subtle, "decrypt").mockImplementation(
-      async (algo, _key, _data) => {
-        if ((algo as any).name === "RSA-OAEP") {
-          return new Uint8Array([11, 22, 33]).slice().buffer as ArrayBuffer; // AES鍵
-        } else if ((algo as any).name === "AES-GCM") {
-          return decryptedCsvBuffer.slice().buffer as ArrayBuffer; // 復号されたCSVデータ
-        }
-        throw new Error("Unexpected algorithm");
+    vi.spyOn(crypto.subtle, "decrypt").mockImplementation(async (algo) => {
+      if ((algo as MockAlgorithm).name === "RSA-OAEP") {
+        return new Uint8Array([11, 22, 33]).slice().buffer as ArrayBuffer; // AES鍵
+      } else if ((algo as MockAlgorithm).name === "AES-GCM") {
+        return decryptedCsvBuffer.slice().buffer as ArrayBuffer; // 復号されたCSVデータ
       }
-    );
+      throw new Error("Unexpected algorithm");
+    });
 
     // AES鍵のインポートモック
     vi.spyOn(crypto.subtle, "importKey").mockResolvedValue({} as CryptoKey);

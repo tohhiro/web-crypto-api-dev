@@ -1,10 +1,9 @@
 /// <reference types="vitest" />
 // @vitest-environment node
 
-import { describe, expect, beforeAll } from "vitest";
 import { encryptCsvWithPublicKey } from "./encryptCsvWithPublicKey";
 
-globalThis.crypto ??= require("crypto").webcrypto;
+//globalThis.crypto ??= require("crypto").webcrypto;
 
 // const mockCsvFile = (content: string): File => {
 //   return new File([content], "test.csv", { type: "text/csv" });

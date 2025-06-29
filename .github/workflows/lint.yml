@@ -1,4 +1,4 @@
-name: Run Typecheck
+name: Run Lint
 
 on:
   push:
@@ -18,7 +18,7 @@ permissions:
   pull-requests: read
 
 jobs:
-  typecheck:
+  lint:
     runs-on: ubuntu-latest
     env:
       TZ: Asia/Tokyo
@@ -41,10 +41,10 @@ jobs:
             echo "shouldRun=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Run Typecheck
+      - name: Run Lint
         if: steps.changes.outputs.shouldRun == 'true'
-        run: npx tsc --noEmit
+        run: npx next lint
 
-      - name: Skip Typecheck (no app/ changes)
+      - name: Skip Lint (no app/ changes)
         if: steps.changes.outputs.shouldRun == 'false'
-        run: echo "No app/ changes detected. Skipping typecheck."
+        run: echo "No app/ changes detected. Skipping lint."

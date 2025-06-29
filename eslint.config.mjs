@@ -17,12 +17,6 @@ const eslintConfig = [
   ...storybook.configs["flat/recommended"],
   {
     files: ["**/*.test.ts", "**/*.test.tsx"],
-    plugins: {
-      "vitest-globals": vitestGlobals,
-    },
-    languageOptions: {
-      globals: vitestGlobals.environments.vitest.globals,
-    },
   },
 ];
 
