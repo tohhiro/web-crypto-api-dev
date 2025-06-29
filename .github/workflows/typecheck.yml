@@ -43,7 +43,7 @@ jobs:
 
       - name: Run Typecheck
         if: steps.changes.outputs.shouldRun == 'true'
-        run: npm typecheck
+        run: npx tsc --noEmit
 
       - name: Skip Typecheck (no app/ changes)
         if: steps.changes.outputs.shouldRun == 'false'
