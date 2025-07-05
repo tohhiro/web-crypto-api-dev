@@ -14,8 +14,11 @@ export const Button: FC<Props> = ({
   return (
     <button
       {...rest}
-      className={`bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-700  ${
-        disabled ? "opacity-50 cursor-not-allowed" : " cursor-pointer"
+      disabled={disabled}
+      className={`bg-blue-500 text-white font-bold py-2 px-4 rounded  ${
+        disabled
+          ? "opacity-50 cursor-not-allowed"
+          : "cursor-pointer hover:bg-blue-700"
       }`}
       type={type}
     >

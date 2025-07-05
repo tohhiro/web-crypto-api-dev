@@ -13,15 +13,18 @@ export const useSendPublicKeyAndCsv = () => {
     }
 
     const formData = new FormData();
+
     formData.append("file", file);
 
     const exportedPublicKey = await crypto.subtle.exportKey(
       "spki",
       keyPair.publicKey
     );
+
     const base64PublicKey = btoa(
       String.fromCharCode(...new Uint8Array(exportedPublicKey))
     );
+
     formData.append("publicKey", base64PublicKey);
 
     const result = await fetch("/api/send", {
