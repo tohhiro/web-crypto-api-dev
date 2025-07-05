@@ -31,8 +31,8 @@ describe("Form", () => {
 
   test("「Attached File」と「Submit」ボタンが表示されること", () => {
     render(<Form />);
-    expect(screen.getByLabelText(/Attached File/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /Submit/i })).toBeInTheDocument();
+    expect(screen.getByLabelText("Attached File")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Encrypt" })).toBeInTheDocument();
   });
 
   test("PDFファイルをアップロードするとAPI通信されず暗号・復号のボタンが表示されないこと", async () => {
@@ -48,7 +48,7 @@ describe("Form", () => {
     const fileInput = screen.getByLabelText("Attached File");
     await userEvent.upload(fileInput, file);
 
-    const submitButton = screen.getByRole("button", { name: "Submit" });
+    const submitButton = screen.getByRole("button", { name: "Encrypt" });
     await userEvent.click(submitButton);
 
     await waitFor(() => {
@@ -59,13 +59,13 @@ describe("Form", () => {
       screen.queryByRole("button", {
         name: "Download Encrypted CSV",
       })
-    ).not.toBeInTheDocument();
+    ).toHaveAttribute("disabled");
 
     expect(
       screen.queryByRole("button", {
         name: "Download Decrypted CSV",
       })
-    ).not.toBeInTheDocument();
+    ).toHaveAttribute("disabled");
   });
 
   test("CSVファイルをアップロードすると暗号・復号のボタンが表示、押下するとコールバックが呼び出されること", async () => {
@@ -82,7 +82,7 @@ describe("Form", () => {
     const fileInput = screen.getByLabelText("Attached File");
     await user.upload(fileInput, file);
 
-    const submitButton = screen.getByRole("button", { name: "Submit" });
+    const submitButton = screen.getByRole("button", { name: "Encrypt" });
     await user.click(submitButton);
 
     const downloadEncryptedButton = await screen.findByRole("button", {

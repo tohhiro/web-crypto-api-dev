@@ -30,7 +30,7 @@ export const Form = () => {
   const {
     handleSubmit,
     control,
-    formState: { isSubmitting, errors },
+    formState: { isSubmitting, isSubmitted, errors },
   } = useForm<Props>({
     resolver: zodResolver(validationSchema),
   });
@@ -66,8 +66,8 @@ export const Form = () => {
   };
 
   // 復号処理したCSVのダウンロード
-  const handleDownloadDecrypted = async () => {
-    await decrypt({
+  const handleDownloadDecrypted = () => {
+    decrypt({
       encryptedData,
       keyPair,
     });
@@ -105,9 +105,9 @@ export const Form = () => {
           </>
         )}
       />
-      <Button label="Submit" type="submit" disabled={isSubmitting} />
-      {encryptedData && (
-        <>
+      <Button label="Encrypt" type="submit" disabled={isSubmitting} />
+      {isSubmitted && encryptedData ? (
+        <div className="flex gap-2">
           <Button
             label="Download Encrypted CSV"
             onClick={handleDownloadEncrypted}
@@ -116,7 +116,12 @@ export const Form = () => {
             label="Download Decrypted CSV"
             onClick={handleDownloadDecrypted}
           />
-        </>
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <Button label="Download Encrypted CSV" disabled />
+          <Button label="Download Decrypted CSV" disabled />
+        </div>
       )}
     </form>
   );
