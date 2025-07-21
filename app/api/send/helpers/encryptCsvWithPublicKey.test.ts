@@ -3,14 +3,8 @@
 
 import { encryptCsvWithPublicKey } from "./encryptCsvWithPublicKey";
 
-//globalThis.crypto ??= require("crypto").webcrypto;
-
-// const mockCsvFile = (content: string): File => {
-//   return new File([content], "test.csv", { type: "text/csv" });
-// };
-
 // RSA 2048bit 公開鍵 (spki base64形式) のダミー（正常系用）
-const validPublicKeyBase64 = "MIIBIjANBgkq...略...IDAQAB"; // ← ここに本物を入れる
+const validPublicKeyBase64 = "MIIBIjANBgkq...略...IDAQAB";
 
 function createMockFile(content: string, name = "test.csv", type = "text/csv") {
   const blob = new Blob([content], { type });
